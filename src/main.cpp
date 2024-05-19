@@ -7,11 +7,14 @@
 #include <imgui/backends/imgui_impl_sdl.h>
 #include <imgui/imgui.h>
 
+#include <spdlog/spdlog.h>
+
 int main(int argc, char *argv[]) {
+  spdlog::info("Hello, world!");
+
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) !=
       0) {
-    SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't initialize SDL: %s",
-                 SDL_GetError());
+    spdlog::error("Couldn't initialize SDL: %s", SDL_GetError());
     return 3;
   }
 
@@ -37,8 +40,7 @@ int main(int argc, char *argv[]) {
                        1280, 720, window_flags);
 
   if (window == nullptr) {
-    SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
-                 "Couldn't create window and renderer: %s\n", SDL_GetError());
+    spdlog::error("Couldn't create window and renderer: %s", SDL_GetError());
     return 3;
   }
 

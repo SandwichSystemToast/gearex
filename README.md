@@ -6,3 +6,4 @@
 * [entt](https://github.com/skypjack/entt)
 * [Dear ImGui](https://github.com/ocornut/imgui)
 * [benchmarks](https://github.com/google/benchmark)
+* [spdlog](https://github.com/gabime/spdlog)
