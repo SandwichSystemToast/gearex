@@ -1,12 +1,11 @@
 #pragma once
 
-#include "SDL_events.h"
+#include <SDL2/SDL.h>
+#include <spdlog/spdlog.h>
+
 #include "input.hpp"
 #include "misc.hpp"
 #include "window.hpp"
-
-#include <SDL2/SDL.h>
-#include <spdlog/spdlog.h>
 
 static inline int initialize_globals() {
   TRY(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER));
