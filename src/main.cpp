@@ -18,6 +18,8 @@ int main(int argc, char *argv[]) {
     auto mouse = engine.input.get_relative_mouse_position();
     spdlog::info("{} {}", mouse.x, mouse.y);
     engine.window.end_frame();
+
+    engine.input.prune();
   }
 
   return 0;

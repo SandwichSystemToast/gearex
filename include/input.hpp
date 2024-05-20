@@ -7,7 +7,7 @@
 
 #include <spdlog/spdlog.h>
 
-#include <map>
+#include <unordered_map>
 
 enum struct InputState {
   NONE = 0,
@@ -35,11 +35,25 @@ struct Input {
     return glm::ivec2(px - nx, py - ny);
   }
 
-  bool is_key_active(SDL_Keycode keycode) const {
-    auto key_iter = states.find(keycode);
-    if (key_iter != states.end())
-      return key_iter->second != InputState::NONE;
-    return false;
+#define _IS_KEY_STATE_IMPL(name, cmp)                                          \
+  bool is_key_##name(SDL_Keycode keycode) const {                              \
+    auto key_iter = states.find(keycode);                                      \
+    if (key_iter != states.end())                                              \
+      return key_iter->second cmp;                                             \
+    return false;                                                              \
+  }
+
+  _IS_KEY_STATE_IMPL(active, != InputState::NONE);
+  _IS_KEY_STATE_IMPL(pressed, == InputState::PRESSED);
+  _IS_KEY_STATE_IMPL(released, == InputState::RELEASED);
+  _IS_KEY_STATE_IMPL(held, == InputState::HELD);
+
+  void prune() {
+    for (auto it = states.begin(); it != states.end();)
+      if (it->second == InputState::NONE)
+        states.erase(it++);
+      else
+        ++it;
   }
 
   void update(Uint8 key_state, SDL_Keycode keycode) {
@@ -63,5 +77,5 @@ struct Input {
     }
   }
 
-  std::map<int, InputState> states;
+  std::unordered_map<int, InputState> states;
 };
