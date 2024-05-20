@@ -76,7 +76,7 @@ struct Window {
   std::optional<SDL_Event> poll_sdl_event() {
     SDL_Event event;
     while (SDL_PollEvent(&event))
-      if (!ImGui_ImplSDL2_ProcessEvent(&event))
+      if (ImGui_ImplSDL2_ProcessEvent(&event))
         // `event` not consumed my ImGui, return to the user
         return event;
       else

@@ -1,6 +1,9 @@
 #pragma once
 
+#include "SDL_events.h"
+#include "input.hpp"
 #include "misc.hpp"
+#include "window.hpp"
 
 #include <SDL2/SDL.h>
 #include <spdlog/spdlog.h>
@@ -10,8 +13,29 @@ static inline int initialize_globals() {
   return 0;
 }
 
-struct GameEngine {
-    GameEngine() {
-        
+struct Engine {
+  Engine() : done(false), input(), window() {}
+
+  void process_events() {
+    input.tick();
+
+    while (auto event = window.poll_sdl_event()) {
+      switch (event->type) {
+      case SDL_QUIT:
+        done = true;
+        break;
+      case SDL_WINDOWEVENT:
+        done = event->window.event == SDL_WINDOWEVENT_CLOSE;
+        break;
+      case SDL_KEYDOWN:
+      case SDL_KEYUP:
+        input.update(event->key.state, event->key.keysym.sym);
+        break;
+      }
     }
+  }
+
+  bool done;
+  Input input;
+  Window window;
 };

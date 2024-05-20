@@ -1,29 +1,24 @@
 #include <spdlog/spdlog.h>
 
-#include "misc.hpp"
+#include "SDL_keycode.h"
 #include "engine.hpp"
-#include "window.hpp"
+#include "misc.hpp"
 
 int main(int argc, char *argv[]) {
   TRY(initialize_globals());
 
-  spdlog::info("Hello, world!");
-  auto window = Window();
+  auto engine = Engine();
 
-  bool done = false;
+  while (!engine.done) {
+    engine.process_events();
 
-  while (!done) {
-    while (auto event = window.poll_sdl_event()) {
-      if (event->type == SDL_QUIT)
-        done = true;
-      if (event->type == SDL_WINDOWEVENT &&
-          event->window.event == SDL_WINDOWEVENT_CLOSE)
-        done = true;
-    }
-
-    window.begin_frame();
+    engine.window.begin_frame();
     ImGui::ShowDemoWindow(nullptr);
-    window.end_frame();
+    auto wasd = engine.input.get_vector(SDLK_a, SDLK_d, SDLK_s, SDLK_w);
+    spdlog::info("{} {}", wasd.x, wasd.y);
+    auto mouse = engine.input.get_relative_mouse_position();
+    spdlog::info("{} {}", mouse.x, mouse.y);
+    engine.window.end_frame();
   }
 
   return 0;
