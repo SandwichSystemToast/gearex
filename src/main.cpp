@@ -1,6 +1,5 @@
 #include <spdlog/spdlog.h>
 
-#include "SDL_keycode.h"
 #include "engine.hpp"
 #include "misc.hpp"
 
@@ -14,7 +13,7 @@ int main(int argc, char *argv[]) {
 
     engine.window.begin_frame();
     ImGui::ShowDemoWindow(nullptr);
-    auto wasd = engine.input.get_vector(SDLK_a, SDLK_d, SDLK_s, SDLK_w);
+    auto wasd = engine.input.get_vector('a', 'd', 's', 'w');
     spdlog::info("{} {}", wasd.x, wasd.y);
     auto mouse = engine.input.get_relative_mouse_position();
     spdlog::info("{} {}", mouse.x, mouse.y);
