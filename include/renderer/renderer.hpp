@@ -1,10 +1,15 @@
 #pragma once
 
+#define GL_GLEXT_PROTOTYPES
+#include <GL/gl.h>
+#include <GL/glext.h>
+
 #include <set>
 
 #include <spdlog/spdlog.h>
 
 #include "../misc.hpp"
+#include "mesh.hpp"
 
 struct Renderer {
   /// @returns `true` if the argument is a valid shader, `false` otherwise
@@ -14,8 +19,25 @@ struct Renderer {
     int status;
     glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
     if (!status) {
+      // TODO: respect infolog length with GL_INFO_LOG_LENGTH
       char msg[512];
       glGetShaderInfoLog(shader, 512, 0, msg);
+      spdlog::error(msg);
+      return false;
+    }
+
+    return true;
+  }
+
+  /// @returns `true` if the argument is a valid shader, `false` otherwise
+  bool check_program(gl shader) {
+    EXPECT(glIsProgram(shader), "Argument is a program");
+
+    int status;
+    glGetProgramiv(shader, GL_COMPILE_STATUS, &status);
+    if (!status) {
+      char msg[512];
+      glGetProgramInfoLog(shader, 512, 0, msg);
       spdlog::error(msg);
       return false;
     }
@@ -49,8 +71,35 @@ struct Renderer {
                     std::min(strlen(name), (size_t)GL_MAX_LABEL_LENGTH), name);
     }
 
+    EXPECT(check_program(shader), "Program is valid");
+
     programs.insert(shader);
     return shader;
+  }
+
+  Mesh make_mesh(MeshBuilder &&builder) {
+    z attributes_len = builder.vertex_attributes.size();
+    std::vector<gl> vertex_buffers(attributes_len);
+    gl vertex_array;
+
+    glGenVertexArrays(1, &vertex_array);
+    glBindVertexArray(vertex_array);
+
+    glGenBuffers(attributes_len, vertex_buffers.data());
+    for (z i = 0; i < attributes_len; i++) {
+      auto &attribute = builder.vertex_attributes[i];
+      glBindBuffer(GL_ARRAY_BUFFER, vertex_buffers[i]);
+      glBufferData(GL_ARRAY_BUFFER, attribute.len, attribute.data,
+                   GL_STATIC_DRAW);
+      glVertexAttribPointer(i, attribute.size, attribute.type,
+                            attribute.normalized, attribute.stride, (void *)0);
+      glEnableVertexAttribArray(i);
+    }
+
+    return Mesh{
+        .vertex_array = vertex_array,
+        .vertex_buffers = vertex_buffers,
+    };
   }
 
   ~Renderer() {

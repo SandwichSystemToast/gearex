@@ -1,4 +1,4 @@
-project('gearex', 'cpp', default_options: 'default_library=static', default_options : ['c_std=c23', 'cpp_std=c++23'])
+project('gearex', 'cpp', default_options: 'default_library=static', default_options : ['c_std=c23', 'cpp_std=c++2a'])
 
 inc = include_directories('include')
 

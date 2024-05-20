@@ -1,3 +1,4 @@
+#include "renderer/mesh.hpp"
 #include "renderer/renderer.hpp"
 #include <spdlog/spdlog.h>
 
@@ -33,31 +34,21 @@ int main(int argc, char *argv[]) {
   gl shader = renderer.make_program(vertex_shader_source,
                                     fragment_shader_source, "Demo Shader");
 
-  float vertices[] = {-0.5f, -0.5f, 0.0f, 0.5f, -0.5f, 0.0f, 0.0f, 0.5f, 0.0f};
+  v3 vertices[3] = {
+      {-0.7f, -0.7f, 0.0f}, {0.7f, -0.7f, 0.0f}, {0.0f, 0.7f, 0.0f}};
 
-  gl VBO, VAO;
-  glGenVertexArrays(1, &VAO);
-  glGenBuffers(1, &VBO);
-  glBindVertexArray(VAO);
-
-  glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
-  glEnableVertexAttribArray(0);
-
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-  glBindVertexArray(0);
+  auto builder = MeshBuilder();
+  builder.add_attribute(std::span(vertices, 3));
+  Mesh mesh = renderer.make_mesh(std::move(builder));
 
   while (!engine.done) {
     engine.process_events();
-
     engine.window.begin_frame();
 
     ImGui::ShowDemoWindow(nullptr);
 
     glUseProgram(shader);
-    glBindVertexArray(VAO);
+    glBindVertexArray(mesh.vertex_array);
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
     engine.window.end_frame();
