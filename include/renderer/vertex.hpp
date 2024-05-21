@@ -22,11 +22,13 @@ template <typename... Ts> struct VertexBuilder {
   static constexpr z stride = (0 + ... +
                                (vertex_attribute<Ts>::components *
                                 vertex_attribute<Ts>::component_size));
-  static_assert(vertex_size == stride, "Vertex size on the CPU does not match stride, possibly an error?");
+  static_assert(
+      vertex_size == stride,
+      "Vertex size on the CPU does not match stride, possibly an error?");
 
   VertexBuilder() { raw.reserve(vertex_size * 24); }
 
-  void add_vertex(Ts &&...attributes) {
+  void add_vertex(Ts... attributes) {
     raw.reserve((raw.size() + 1) * vertex_size);
 
     (

@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
 
   // TODO: optimize this
   for (z i = 0; i < 4; i++)
-    verts.add_vertex(std::move(vertices[i]), std::move(colors[i]));
+    verts.add_vertex(vertices[i], colors[i]);
 
   Mesh mesh = renderer.make_mesh(std::move(verts), std::span(indices, 6));
 
