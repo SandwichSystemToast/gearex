@@ -86,13 +86,15 @@ struct Renderer {
 
     z i = 0;
     z offset = 0;
+    z stride = VertexBuilder<Ts...>::stride;
     (
         [&] {
           using va = vertex_attribute<Ts>;
           glVertexAttribPointer(i, va::components, va::type, va::normalized,
-                                va::stride, (void *)(0 + offset));
+                                stride, (void *)(0 + offset));
           glEnableVertexAttribArray(i);
-          offset += va::stride;
+          offset += va::components * va::component_size;
+          i += 1;
         }(),
         ...);
 

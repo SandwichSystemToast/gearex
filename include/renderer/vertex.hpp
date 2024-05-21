@@ -14,12 +14,15 @@ template <> struct vertex_attribute<v3> {
   static constexpr GLenum type = GL_FLOAT;
   static constexpr z components = 3;
   static constexpr z component_size = sizeof(f32);
-  static constexpr z stride = components * sizeof(f32);
   static constexpr bool normalized = false;
 };
 
 template <typename... Ts> struct VertexBuilder {
   static constexpr z vertex_size = (0 + ... + sizeof(Ts));
+  static constexpr z stride = (0 + ... +
+                               (vertex_attribute<Ts>::components *
+                                vertex_attribute<Ts>::component_size));
+  static_assert(vertex_size == stride, "Vertex size on the CPU does not match stride, possibly an error?");
 
   VertexBuilder() { raw.reserve(vertex_size * 24); }
 

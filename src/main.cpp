@@ -15,17 +15,21 @@
 const char *vertex_shader_source =
     "#version 330 core\n"
     "layout (location = 0) in vec3 aPos;\n"
+    "layout (location = 1) in vec3 aColor;\n"
+    "out vec3 ourColor;\n"
     "void main()\n"
     "{\n"
-    "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+    "   gl_Position = vec4(aPos, 1.0);\n"
+    "   ourColor = aColor;\n"
     "}\0";
 
 const char *fragment_shader_source =
     "#version 330 core\n"
     "out vec4 FragColor;\n"
+    "in vec3 ourColor;"
     "void main()\n"
     "{\n"
-    "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+    "   FragColor = vec4(ourColor, 1.0);\n"
     "}\n\0";
 
 int main(int argc, char *argv[]) {
@@ -40,12 +44,16 @@ int main(int argc, char *argv[]) {
                     {0.5f, -0.5f, 0.0f},
                     {-0.5f, -0.5f, 0.0f},
                     {-0.5f, 0.5f, 0.0f}};
+
+  v3 colors[4] = {{1., 0., 0.}, {0., 1., 0.}, {0., 0., 1.}, {1., 1., 1.}};
+
   u32 indices[6] = {0, 1, 3, 1, 2, 3};
 
-  auto verts = VertexBuilder<v3>();
+  auto verts = VertexBuilder<v3, v3>();
+
   // TODO: optimize this
-  for (auto v : vertices)
-    verts.add_vertex(std::move(v));
+  for (z i = 0; i < 4; i++)
+    verts.add_vertex(std::move(vertices[i]), std::move(colors[i]));
 
   Mesh mesh = renderer.make_mesh(std::move(verts), std::span(indices, 6));
 
