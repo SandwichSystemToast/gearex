@@ -12,12 +12,16 @@
 #include <spdlog/fmt/ostr.h>
 #include <spdlog/spdlog.h>
 
-#define EXPECT(expr, msg)                                                      \
+#define PANIC(msg, ...)                                                        \
+  {                                                                            \
+    spdlog::critical(__FILE__ ":{} " msg, __LINE__, ##__VA_ARGS__);             \
+    exit(2);                                                                   \
+  }
+
+#define EXPECT(expr, msg, ...)                                                 \
   {                                                                            \
     if (!(expr)) {                                                             \
-      spdlog::critical("Expectation '" msg "' failed " __FILE__ ":{}",         \
-                       __LINE__);                                              \
-      exit(2);                                                                 \
+      PANIC(msg, ##__VA_ARGS__)                                                  \
     }                                                                          \
   }
 

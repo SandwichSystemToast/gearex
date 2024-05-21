@@ -1,5 +1,6 @@
 #pragma once
 
+#include "SDL_error.h"
 #include "misc.hpp"
 
 #include <SDL2/SDL.h>
@@ -13,7 +14,9 @@
 
 struct Window {
   Window() {
-    EXPECT(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) == 0, "SDL");
+    EXPECT(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER |
+                    SDL_INIT_GAMECONTROLLER) == 0,
+           "SDL init error: {}", SDL_GetError());
 
 #ifdef SDL_HINT_IME_SHOW_UI
     SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1");
@@ -35,7 +38,7 @@ struct Window {
 
     window = SDL_CreateWindow("gearex", SDL_WINDOWPOS_CENTERED,
                               SDL_WINDOWPOS_CENTERED, 1280, 720, window_flags);
-    EXPECT(window != nullptr, "Window");
+    EXPECT(window != nullptr, "Window init error:", SDL_GetError());
 
     gl_context = SDL_GL_CreateContext(window);
     SDL_GL_MakeCurrent(window, gl_context);

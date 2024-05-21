@@ -115,7 +115,7 @@ protected:
 
   /// @returns `true` if the argument is a valid shader, `false` otherwise
   bool check_shader(gl shader) {
-    EXPECT(glIsShader(shader), "Argument is a shader");
+    EXPECT(glIsShader(shader), "glObject {} is not a shader", shader);
 
     int status;
     glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
