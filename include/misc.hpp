@@ -12,13 +12,6 @@
 #include <spdlog/fmt/ostr.h>
 #include <spdlog/spdlog.h>
 
-#define TRY(expr)                                                              \
-  {                                                                            \
-    if (decltype(auto) result = expr) {                                        \
-      return result;                                                           \
-    }                                                                          \
-  }
-
 #define EXPECT(expr, msg)                                                      \
   {                                                                            \
     if (!(expr)) {                                                             \
