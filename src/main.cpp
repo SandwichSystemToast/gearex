@@ -11,6 +11,7 @@
 
 #include "renderer/renderer.hpp"
 #include "renderer/vertex.hpp"
+#include "entt/entt.hpp"
 
 const char *vertex_shader_source = "#version 330 core\n"
                                    "layout (location = 0) in vec3 aPos;\n"

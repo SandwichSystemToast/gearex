@@ -1,6 +1,6 @@
 project('gearex', 'cpp', default_options: 'default_library=static', default_options : ['c_std=c23', 'cpp_std=c++2a'])
 
-inc = include_directories('include')
+inc = [include_directories('include'), include_directories('ext/entt/src/')]
 
 sdl2_dep = dependency('sdl2')
 box2d_dep = dependency('box2d')
