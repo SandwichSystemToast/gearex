@@ -20,7 +20,7 @@ template <> struct vertex_attribute<v3> {
   static constexpr bool normalized = false;
 };
 
-struct MeshBuilder {
+struct VertexAttributeBuilder {
   template <typename T> void add_attribute(std::span<T> contents) {
     auto attribute = VertexData{
         .data = contents.data(),
@@ -34,10 +34,10 @@ struct MeshBuilder {
     vertex_attributes.push_back(attribute);
   }
 
-  std::vector<VertexData> vertex_attributes;
-};
+  std::vector<VertexData> &&attributes() && {
+    return std::move(vertex_attributes);
+  }
 
-struct Mesh {
-  gl vertex_array;
-  std::vector<gl> vertex_buffers;
+private:
+  std::vector<VertexData> vertex_attributes;
 };

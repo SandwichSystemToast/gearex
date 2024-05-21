@@ -1,4 +1,3 @@
-#include "renderer/mesh.hpp"
 #include "renderer/renderer.hpp"
 #include <spdlog/spdlog.h>
 
@@ -39,14 +38,9 @@ int main(int argc, char *argv[]) {
                     {-0.5f, 0.5f, 0.0f}};
   u32 indices[6] = {0, 1, 3, 1, 2, 3};
 
-  auto builder = MeshBuilder();
-  builder.add_attribute(std::span(vertices, 4));
-  Mesh mesh = renderer.make_mesh(std::move(builder));
-
-  gl ebo;
-  glGenBuffers(1, &ebo);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+  auto attributes = VertexAttributeBuilder();
+  attributes.add_attribute(std::span(vertices, 4));
+  Mesh mesh = renderer.make_mesh(std::move(attributes), std::span(indices, 6));
 
   while (!engine.done) {
     engine.process_events();
@@ -56,6 +50,7 @@ int main(int argc, char *argv[]) {
 
     glUseProgram(shader);
     glBindVertexArray(mesh.vertex_array);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.index_buffer);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 

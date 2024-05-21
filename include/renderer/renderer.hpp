@@ -9,7 +9,7 @@
 #include <spdlog/spdlog.h>
 
 #include "../misc.hpp"
-#include "mesh.hpp"
+#include "vertex.hpp"
 
 static inline void GLAPIENTRY glMessageCallback(GLenum source, GLenum type,
                                                 GLuint id, GLenum severity,
@@ -21,6 +21,11 @@ static inline void GLAPIENTRY glMessageCallback(GLenum source, GLenum type,
     log_level = spdlog::level::err;
   spdlog::log(log_level, "GL Error: {}", msg);
 }
+
+struct Mesh {
+  gl vertex_array, index_buffer;
+  std::vector<gl> vertex_buffers;
+};
 
 struct Renderer {
   void setup_opengl_debug() {
@@ -58,17 +63,28 @@ struct Renderer {
     return shader;
   }
 
-  Mesh make_mesh(MeshBuilder &&builder) {
-    z attributes_len = builder.vertex_attributes.size();
+  Mesh make_mesh(VertexAttributeBuilder &&vertex_builder,
+                 std::span<u32> indices) {
+    auto attributes = std::move(vertex_builder).attributes();
+    z attributes_len = attributes.size();
     std::vector<gl> vertex_buffers(attributes_len);
-    gl vertex_array;
+    gl vertex_array, index_buffer;
 
+    // Vertex Array
     glGenVertexArrays(1, &vertex_array);
     glBindVertexArray(vertex_array);
 
+    // Index Buffer
+    glGenBuffers(1, &index_buffer);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size_bytes(), indices.data(),
+                 GL_STATIC_DRAW);
+
+    // Vertex Buffers
     glGenBuffers(attributes_len, vertex_buffers.data());
     for (z i = 0; i < attributes_len; i++) {
-      auto &attribute = builder.vertex_attributes[i];
+      auto &attribute = attributes[i];
+
       glBindBuffer(GL_ARRAY_BUFFER, vertex_buffers[i]);
       glBufferData(GL_ARRAY_BUFFER, attribute.len, attribute.data,
                    GL_STATIC_DRAW);
@@ -79,6 +95,7 @@ struct Renderer {
 
     return Mesh{
         .vertex_array = vertex_array,
+        .index_buffer = index_buffer,
         .vertex_buffers = vertex_buffers,
     };
   }
