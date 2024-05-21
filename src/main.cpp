@@ -33,12 +33,20 @@ int main(int argc, char *argv[]) {
   gl shader = renderer.make_program(vertex_shader_source,
                                     fragment_shader_source, "Demo Shader");
 
-  v3 vertices[3] = {
-      {-0.7f, -0.7f, 0.0f}, {0.7f, -0.7f, 0.0f}, {0.0f, 0.7f, 0.0f}};
+  v3 vertices[4] = {{0.5f, 0.5f, 0.0f},
+                    {0.5f, -0.5f, 0.0f},
+                    {-0.5f, -0.5f, 0.0f},
+                    {-0.5f, 0.5f, 0.0f}};
+  u32 indices[6] = {0, 1, 3, 1, 2, 3};
 
   auto builder = MeshBuilder();
-  builder.add_attribute(std::span(vertices, 3));
+  builder.add_attribute(std::span(vertices, 4));
   Mesh mesh = renderer.make_mesh(std::move(builder));
+
+  gl ebo;
+  glGenBuffers(1, &ebo);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
   while (!engine.done) {
     engine.process_events();
@@ -48,7 +56,8 @@ int main(int argc, char *argv[]) {
 
     glUseProgram(shader);
     glBindVertexArray(mesh.vertex_array);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
 
     engine.window.end_frame();
     engine.input.prune();
