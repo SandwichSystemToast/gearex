@@ -5,6 +5,7 @@
 #include <GL/glext.h>
 
 #include <set>
+#include <span>
 
 #include <spdlog/spdlog.h>
 
@@ -23,8 +24,7 @@ static inline void GLAPIENTRY glMessageCallback(GLenum source, GLenum type,
 }
 
 struct Mesh {
-  gl vertex_array, index_buffer;
-  std::vector<gl> vertex_buffers;
+  gl vertex_array, index_buffer, vertex_buffer;
 };
 
 struct Renderer {
@@ -63,12 +63,10 @@ struct Renderer {
     return shader;
   }
 
-  Mesh make_mesh(VertexAttributeBuilder &&vertex_builder,
+  template <typename... Ts>
+  Mesh make_mesh(VertexBuilder<Ts...> &&vertex_builder,
                  std::span<u32> indices) {
-    auto attributes = std::move(vertex_builder).attributes();
-    z attributes_len = attributes.size();
-    std::vector<gl> vertex_buffers(attributes_len);
-    gl vertex_array, index_buffer;
+    gl vertex_buffer, vertex_array, index_buffer;
 
     // Vertex Array
     glGenVertexArrays(1, &vertex_array);
@@ -80,23 +78,28 @@ struct Renderer {
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size_bytes(), indices.data(),
                  GL_STATIC_DRAW);
 
-    // Vertex Buffers
-    glGenBuffers(attributes_len, vertex_buffers.data());
-    for (z i = 0; i < attributes_len; i++) {
-      auto &attribute = attributes[i];
+    // Vertex Buffer
+    glGenBuffers(1, &vertex_buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
+    glBufferData(GL_ARRAY_BUFFER, vertex_builder.size_bytes(),
+                 vertex_builder.data(), GL_STATIC_DRAW);
 
-      glBindBuffer(GL_ARRAY_BUFFER, vertex_buffers[i]);
-      glBufferData(GL_ARRAY_BUFFER, attribute.len, attribute.data,
-                   GL_STATIC_DRAW);
-      glVertexAttribPointer(i, attribute.size, attribute.type,
-                            attribute.normalized, attribute.stride, (void *)0);
-      glEnableVertexAttribArray(i);
-    }
+    z i = 0;
+    z offset = 0;
+    (
+        [&] {
+          using va = vertex_attribute<Ts>;
+          glVertexAttribPointer(i, va::components, va::type, va::normalized,
+                                va::stride, (void *)(0 + offset));
+          glEnableVertexAttribArray(i);
+          offset += va::stride;
+        }(),
+        ...);
 
     return Mesh{
         .vertex_array = vertex_array,
         .index_buffer = index_buffer,
-        .vertex_buffers = vertex_buffers,
+        .vertex_buffer = vertex_buffer,
     };
   }
 

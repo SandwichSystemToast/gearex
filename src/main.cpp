@@ -1,4 +1,5 @@
-#include "renderer/renderer.hpp"
+#include <span>
+
 #include <spdlog/spdlog.h>
 
 #define GL_GLEXT_PROTOTYPES
@@ -7,6 +8,9 @@
 
 #include "engine.hpp"
 #include "misc.hpp"
+
+#include "renderer/renderer.hpp"
+#include "renderer/vertex.hpp"
 
 const char *vertex_shader_source =
     "#version 330 core\n"
@@ -38,9 +42,12 @@ int main(int argc, char *argv[]) {
                     {-0.5f, 0.5f, 0.0f}};
   u32 indices[6] = {0, 1, 3, 1, 2, 3};
 
-  auto attributes = VertexAttributeBuilder();
-  attributes.add_attribute(std::span(vertices, 4));
-  Mesh mesh = renderer.make_mesh(std::move(attributes), std::span(indices, 6));
+  auto verts = VertexBuilder<v3>();
+  // TODO: optimize this
+  for (auto v : vertices)
+    verts.add_vertex(std::move(v));
+
+  Mesh mesh = renderer.make_mesh(std::move(verts), std::span(indices, 6));
 
   while (!engine.done) {
     engine.process_events();

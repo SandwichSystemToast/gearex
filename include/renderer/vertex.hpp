@@ -2,42 +2,45 @@
 
 #include "../misc.hpp"
 
-#include <span>
-
 template <typename T> struct vertex_attribute {};
 
 struct VertexData {
-  void *data;
   GLenum type;
-  z len, size, stride;
+  z components, component_size;
   bool normalized;
 };
 
 template <> struct vertex_attribute<v3> {
   static constexpr GLenum type = GL_FLOAT;
-  static constexpr z size = 3;
-  static constexpr z stride = 3 * sizeof(f32);
+  static constexpr z components = 3;
+  static constexpr z component_size = sizeof(f32);
+  static constexpr z stride = components * sizeof(f32);
   static constexpr bool normalized = false;
 };
 
-struct VertexAttributeBuilder {
-  template <typename T> void add_attribute(std::span<T> contents) {
-    auto attribute = VertexData{
-        .data = contents.data(),
-        .type = vertex_attribute<T>::type,
-        .len = contents.size() * sizeof(T),
-        .size = vertex_attribute<T>::size,
-        .stride = vertex_attribute<T>::stride,
-        .normalized = vertex_attribute<T>::normalized,
-    };
+template <typename... Ts> struct VertexBuilder {
+  static constexpr z vertex_size = (0 + ... + sizeof(Ts));
 
-    vertex_attributes.push_back(attribute);
+  VertexBuilder() { raw.reserve(vertex_size * 24); }
+
+  void add_vertex(Ts &&...attributes) {
+    raw.reserve((raw.size() + 1) * vertex_size);
+
+    (
+        [&] {
+          using va = vertex_attribute<Ts>;
+          z len = va::components * va::component_size;
+          auto ptr = reinterpret_cast<u8 *>(&attributes);
+          for (z j = 0; j < len; j++)
+            raw.push_back(ptr[j]);
+        }(),
+        ...);
   }
 
-  std::vector<VertexData> &&attributes() && {
-    return std::move(vertex_attributes);
-  }
+  void *data() { return raw.data(); }
+
+  z size_bytes() { return raw.size(); }
 
 private:
-  std::vector<VertexData> vertex_attributes;
+  std::vector<u8> raw;
 };
