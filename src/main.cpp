@@ -40,6 +40,8 @@ int main(int argc, char *argv[]) {
   gl shader = renderer.make_program(vertex_shader_source,
                                     fragment_shader_source, "Demo Shader");
 
+                                    
+
   v3 vertices[4] = {{0.5f, 0.5f, 0.0f},
                     {0.5f, -0.5f, 0.0f},
                     {-0.5f, -0.5f, 0.0f},
