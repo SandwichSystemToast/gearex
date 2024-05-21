@@ -26,10 +26,9 @@ const char *fragment_shader_source =
     "}\n\0";
 
 int main(int argc, char *argv[]) {
-  TRY(initialize_globals());
-
   auto engine = Engine();
   auto renderer = Renderer();
+  renderer.setup_opengl_debug();
 
   gl shader = renderer.make_program(vertex_shader_source,
                                     fragment_shader_source, "Demo Shader");

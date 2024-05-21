@@ -9,9 +9,11 @@
 #include <imgui/backends/imgui_impl_sdl.h>
 #include <imgui/imgui.h>
 #include <optional>
+#include <spdlog/spdlog.h>
 
 struct Window {
   Window() {
+    EXPECT(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) == 0, "SDL");
 
 #ifdef SDL_HINT_IME_SHOW_UI
     SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1");

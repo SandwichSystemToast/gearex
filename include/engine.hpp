@@ -1,16 +1,15 @@
 #pragma once
 
+#include <GL/gl.h>
+
+#include <GL/glext.h>
 #include <SDL2/SDL.h>
+
+#include <spdlog/common.h>
 #include <spdlog/spdlog.h>
 
 #include "input.hpp"
-#include "misc.hpp"
 #include "window.hpp"
-
-static inline int initialize_globals() {
-  TRY(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER));
-  return 0;
-}
 
 struct Engine {
   Engine() : done(false), input(), window() {}

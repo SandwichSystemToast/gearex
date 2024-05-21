@@ -11,38 +11,21 @@
 #include "../misc.hpp"
 #include "mesh.hpp"
 
+static inline void GLAPIENTRY glMessageCallback(GLenum source, GLenum type,
+                                                GLuint id, GLenum severity,
+                                                GLsizei length,
+                                                const GLchar *msg,
+                                                const void *_) {
+  auto log_level = spdlog::level::warn;
+  if (type == GL_DEBUG_TYPE_ERROR)
+    log_level = spdlog::level::err;
+  spdlog::log(log_level, "GL Error: {}", msg);
+}
+
 struct Renderer {
-  /// @returns `true` if the argument is a valid shader, `false` otherwise
-  bool check_shader(gl shader) {
-    EXPECT(glIsShader(shader), "Argument is a shader");
-
-    int status;
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
-    if (!status) {
-      // TODO: respect infolog length with GL_INFO_LOG_LENGTH
-      char msg[512];
-      glGetShaderInfoLog(shader, 512, 0, msg);
-      spdlog::error(msg);
-      return false;
-    }
-
-    return true;
-  }
-
-  /// @returns `true` if the argument is a valid shader, `false` otherwise
-  bool check_program(gl shader) {
-    EXPECT(glIsProgram(shader), "Argument is a program");
-
-    int status;
-    glGetProgramiv(shader, GL_COMPILE_STATUS, &status);
-    if (!status) {
-      char msg[512];
-      glGetProgramInfoLog(shader, 512, 0, msg);
-      spdlog::error(msg);
-      return false;
-    }
-
-    return true;
+  void setup_opengl_debug() {
+    glEnable(GL_DEBUG_OUTPUT);
+    glDebugMessageCallback(glMessageCallback, nullptr);
   }
 
   [[nodiscard("Discarding a shader leaks memory")]]
@@ -70,8 +53,6 @@ struct Renderer {
       glObjectLabel(GL_PROGRAM, shader,
                     std::min(strlen(name), (size_t)GL_MAX_LABEL_LENGTH), name);
     }
-
-    EXPECT(check_program(shader), "Program is valid");
 
     programs.insert(shader);
     return shader;
@@ -104,9 +85,26 @@ struct Renderer {
 
   ~Renderer() {
     for (auto program : programs)
-      glDeleteShader(program);
+      glDeleteProgram(program);
   }
 
-private:
+protected:
   std::set<gl> programs;
+
+  /// @returns `true` if the argument is a valid shader, `false` otherwise
+  bool check_shader(gl shader) {
+    EXPECT(glIsShader(shader), "Argument is a shader");
+
+    int status;
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
+    if (!status) {
+      // TODO: respect infolog length with GL_INFO_LOG_LENGTH
+      char msg[512];
+      glGetShaderInfoLog(shader, 512, 0, msg);
+      spdlog::error(msg);
+      return false;
+    }
+
+    return true;
+  }
 };

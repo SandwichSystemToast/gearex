@@ -9,8 +9,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/string_cast.hpp>
 
-#include <spdlog/spdlog.h>
 #include <spdlog/fmt/ostr.h>
+#include <spdlog/spdlog.h>
 
 #define TRY(expr)                                                              \
   {                                                                            \
@@ -19,11 +19,11 @@
     }                                                                          \
   }
 
-#define EXPECT(expr, msg, ...)                                                 \
+#define EXPECT(expr, msg)                                                      \
   {                                                                            \
     if (!(expr)) {                                                             \
-      spdlog::error("Expectation '" msg "' failed " __FILE__ ":%d",            \
-                    __VA_ARGS__ __LINE__);                                     \
+      spdlog::critical("Expectation '" msg "' failed " __FILE__ ":{}",         \
+                       __LINE__);                                              \
       exit(2);                                                                 \
     }                                                                          \
   }
