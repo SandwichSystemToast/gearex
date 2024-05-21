@@ -33,7 +33,7 @@ jobs:
       - name: Install libraries
         run: sudo apt install -y libsdl2-dev libbox2d-dev libimgui-dev libspdlog-dev libglm-dev
       - name: Run
-        run: make
+        run: make compile
         env:
           CC: clang
       - name: Upload Test Log
