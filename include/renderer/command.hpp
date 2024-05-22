@@ -16,6 +16,8 @@ struct Command {
   };
 };
 
+static_assert(std::is_trivial_v<Command>);
+
 struct CommandQueue {
   CommandQueue() {}
 

@@ -1,7 +1,9 @@
 #pragma once
 
-#include "misc.hpp"
 #include <GL/glcorearb.h>
+#include <type_traits>
+
+#include "misc.hpp"
 
 enum struct Topology : u8 { TRIANGLES, TRIANGLE_STRIP, QUADS, LINES };
 
@@ -25,3 +27,5 @@ struct Mesh {
     PANIC("Undefined draw topology {}", (u8)topology);
   }
 };
+
+static_assert(std::is_trivial_v<Mesh>);

@@ -1,9 +1,13 @@
 #pragma once
 
-#include "../misc.hpp"
 #include <GL/glcorearb.h>
+#include <type_traits>
 
-template <typename T> struct vertex_attribute {};
+#include "misc.hpp"
+
+template <typename T>
+  requires std::is_standard_layout_v<T>
+struct vertex_attribute {};
 
 #define _IMPL_VERTEX_ATTRIBUTE(T, gl_type, n, size)                            \
   template <> struct vertex_attribute<T> {                                     \
