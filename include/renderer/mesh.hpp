@@ -3,7 +3,7 @@
 #include "misc.hpp"
 #include <GL/glcorearb.h>
 
-enum struct Topology { TRIANGLES, TRIANGLE_STRIP, QUADS, LINES };
+enum struct Topology : u8 { TRIANGLES, TRIANGLE_STRIP, QUADS, LINES };
 
 /// VAO + EBO + VBO + DrawMode
 struct Mesh {
@@ -22,5 +22,6 @@ struct Mesh {
     case Topology::LINES:
       return GL_LINES;
     }
+    PANIC("Undefined draw topology {}", (u8)topology);
   }
 };

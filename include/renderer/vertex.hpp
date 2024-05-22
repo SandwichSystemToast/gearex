@@ -1,21 +1,19 @@
 #pragma once
 
 #include "../misc.hpp"
+#include <GL/glcorearb.h>
 
 template <typename T> struct vertex_attribute {};
 
-struct VertexData {
-  GLenum type;
-  z components, component_size;
-  bool normalized;
-};
+#define _IMPL_VERTEX_ATTRIBUTE(T, gl_type, n, size)                            \
+  template <> struct vertex_attribute<T> {                                     \
+    static constexpr GLenum type = gl_type;                                    \
+    static constexpr z components = n;                                         \
+    static constexpr z component_size = size;                                  \
+  };
 
-template <> struct vertex_attribute<v3> {
-  static constexpr GLenum type = GL_FLOAT;
-  static constexpr z components = 3;
-  static constexpr z component_size = sizeof(f32);
-  static constexpr bool normalized = false;
-};
+_IMPL_VERTEX_ATTRIBUTE(v3, GL_FLOAT, 3, sizeof(f32));
+_IMPL_VERTEX_ATTRIBUTE(v2, GL_FLOAT, 2, sizeof(f32));
 
 template <typename... Ts> struct VertexBuilder {
   static constexpr z vertex_size = (0 + ... + sizeof(Ts));

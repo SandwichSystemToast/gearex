@@ -33,7 +33,7 @@ jobs:
       - name: Install dependencies
         run: python -m pip install meson==${{ matrix.meson_version }} ninja
       - name: Install libraries
-        run: sudo apt install -y libsdl2-dev libbox2d-dev libimgui-dev libspdlog-dev libglm-dev
+        run: sudo apt install -y libsdl2-dev libbox2d-dev libimgui-dev libspdlog-dev libglm-dev libstb-dev
       - name: Run
         run: make compile
         env:

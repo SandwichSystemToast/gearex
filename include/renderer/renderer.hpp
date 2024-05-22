@@ -21,7 +21,7 @@ static inline void GLAPIENTRY glMessageCallback(GLenum source, GLenum type,
   auto log_level = spdlog::level::warn;
   if (type == GL_DEBUG_TYPE_ERROR)
     log_level = spdlog::level::err;
-  spdlog::log(log_level, "GL Error: {}", msg);
+  spdlog::log(log_level, "{}", msg);
 }
 
 struct Renderer {
@@ -79,6 +79,25 @@ struct Renderer {
     return shader;
   }
 
+  gl make_texture(u8 *data, u32 width, u32 height) {
+    EXPECT(data != nullptr, "Supplied texture was non-existent");
+
+    gl texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
+                 GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    return texture;
+  }
+
   template <typename... Ts>
   Mesh make_mesh(VertexBuilder<Ts...> &&vertex_builder, std::span<u32> indices,
                  Topology topology) {
@@ -106,8 +125,8 @@ struct Renderer {
     (
         [&] {
           using va = vertex_attribute<Ts>;
-          glVertexAttribPointer(i, va::components, va::type, va::normalized,
-                                stride, (void *)(0 + offset));
+          glVertexAttribPointer(i, va::components, va::type, GL_FALSE, stride,
+                                (void *)(0 + offset));
           glEnableVertexAttribArray(i);
           offset += va::components * va::component_size;
           i += 1;
