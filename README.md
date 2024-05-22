@@ -7,3 +7,4 @@
 * [Dear ImGui](https://github.com/ocornut/imgui)
 * [benchmarks](https://github.com/google/benchmark)
 * [spdlog](https://github.com/gabime/spdlog)
+* [archive](https://github.com/libarchive/libarchive)

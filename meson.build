@@ -8,5 +8,6 @@ imgui_dep = dependency('imgui')
 opengl3_dep = dependency('gl')
 spdlog_dep = dependency('spdlog')
 glm_dep = dependency('glm')
+archive_dep = dependency('libarchive')
 
-executable('gearex', 'src/main.cpp', dependencies: [sdl2_dep, box2d_dep, imgui_dep, opengl3_dep, spdlog_dep, glm_dep], include_directories: inc)
+executable('gearex', 'src/main.cpp', dependencies: [sdl2_dep, box2d_dep, imgui_dep, opengl3_dep, spdlog_dep, glm_dep, archive_dep], include_directories: inc)

@@ -12,6 +12,10 @@
 #include <spdlog/fmt/ostr.h>
 #include <spdlog/spdlog.h>
 
+#include <entt/entt.hpp>
+
+using namespace entt::literals;
+
 #define PANIC(msg, ...)                                                        \
   {                                                                            \
     spdlog::critical(__FILE__ ":{} " msg, __LINE__, ##__VA_ARGS__);             \

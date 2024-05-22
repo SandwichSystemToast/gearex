@@ -12,7 +12,7 @@
 #include "engine.hpp"
 #include "misc.hpp"
 
-#include "entt/entt.hpp"
+#include "assets/assets.hpp"
 #include "renderer/renderer.hpp"
 #include "renderer/vertex.hpp"
 
@@ -41,12 +41,18 @@ const char *fragment_shader_source =
     "}\n\0";
 
 int main(int argc, char *argv[]) {
+
   auto engine = Engine();
   auto renderer = Renderer();
   renderer.setup_opengl_debug();
 
+  auto assets = Assets("./assets.tar.gz");
+  auto texture_span = assets.get_binary("assets/cat"_hs).value();
+
   i32 width, height, channels;
-  u8 *cat_data = stbi_load("cat.png", &width, &height, &channels, 0);
+  u8 *cat_data =
+      stbi_load_from_memory(texture_span.data(), texture_span.size_bytes(),
+                            &width, &height, &channels, 0);
   gl texture = renderer.make_texture(cat_data, width, height);
   stbi_image_free(cat_data);
 

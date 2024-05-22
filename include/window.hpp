@@ -1,6 +1,7 @@
 #pragma once
 
 #include "SDL_error.h"
+#include "SDL_hints.h"
 #include "misc.hpp"
 
 #include <SDL2/SDL.h>
@@ -21,6 +22,7 @@ struct Window {
 #ifdef SDL_HINT_IME_SHOW_UI
     SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1");
 #endif
+    SDL_SetHint(SDL_HINT_RENDER_VSYNC, 0);
 
     const char *glsl_version = "#version 130";
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
