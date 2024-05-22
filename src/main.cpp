@@ -1,3 +1,4 @@
+#include "renderer/command.hpp"
 #include <span>
 
 #include <spdlog/spdlog.h>
@@ -9,9 +10,9 @@
 #include "engine.hpp"
 #include "misc.hpp"
 
+#include "entt/entt.hpp"
 #include "renderer/renderer.hpp"
 #include "renderer/vertex.hpp"
-#include "entt/entt.hpp"
 
 const char *vertex_shader_source = "#version 330 core\n"
                                    "layout (location = 0) in vec3 aPos;\n"
@@ -54,19 +55,18 @@ int main(int argc, char *argv[]) {
   for (z i = 0; i < 4; i++)
     verts.add_vertex(vertices[i], colors[i]);
 
-  Mesh mesh = renderer.make_mesh(std::move(verts), std::span(indices, 6));
+  Mesh mesh = renderer.make_mesh(std::move(verts), std::span(indices, 6),
+                                 Topology::TRIANGLES);
 
   while (!engine.done) {
     engine.process_events();
     engine.window.begin_frame();
+    auto queue = CommandQueue();
 
     ImGui::ShowDemoWindow(nullptr);
 
-    glUseProgram(shader);
-    glBindVertexArray(mesh.vertex_array);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.index_buffer);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
+    queue.draw_mesh(mesh, shader);
+    renderer.submit_queue(queue);
 
     engine.window.end_frame();
     engine.input.prune();

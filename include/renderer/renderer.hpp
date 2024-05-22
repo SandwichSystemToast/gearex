@@ -10,6 +10,7 @@
 #include <spdlog/spdlog.h>
 
 #include "../misc.hpp"
+#include "command.hpp"
 #include "vertex.hpp"
 
 static inline void GLAPIENTRY glMessageCallback(GLenum source, GLenum type,
@@ -23,14 +24,29 @@ static inline void GLAPIENTRY glMessageCallback(GLenum source, GLenum type,
   spdlog::log(log_level, "GL Error: {}", msg);
 }
 
-struct Mesh {
-  gl vertex_array, index_buffer, vertex_buffer;
-};
-
 struct Renderer {
   void setup_opengl_debug() {
     glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallback(glMessageCallback, nullptr);
+  }
+
+  void submit_queue(CommandQueue queue) {
+    for (auto command : queue.queue) {
+      switch (command.kind) {
+      case CommandKind::DRAW_MESH: {
+        Mesh mesh = command.draw_mesh.mesh;
+        glUseProgram(command.draw_mesh.shader_program);
+        glBindVertexArray(mesh.vertex_array);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.index_buffer);
+        glDrawElements(mesh.gl_draw_mode(), mesh.index_count, GL_UNSIGNED_INT,
+                       0);
+        glBindVertexArray(0);
+        break;
+      }
+      default:
+        PANIC("Undefined command kind");
+      }
+    }
   }
 
   [[nodiscard("Discarding a shader leaks memory")]]
@@ -64,8 +80,8 @@ struct Renderer {
   }
 
   template <typename... Ts>
-  Mesh make_mesh(VertexBuilder<Ts...> &&vertex_builder,
-                 std::span<u32> indices) {
+  Mesh make_mesh(VertexBuilder<Ts...> &&vertex_builder, std::span<u32> indices,
+                 Topology topology) {
     gl vertex_buffer, vertex_array, index_buffer;
 
     // Vertex Array
@@ -99,9 +115,11 @@ struct Renderer {
         ...);
 
     return Mesh{
+        .index_count = (u32)indices.size(),
         .vertex_array = vertex_array,
         .index_buffer = index_buffer,
         .vertex_buffer = vertex_buffer,
+        .topology = topology,
     };
   }
 
