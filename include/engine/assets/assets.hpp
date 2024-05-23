@@ -107,11 +107,14 @@ struct AssetManager {
         i32 width, height, channels;
         u8 *data = stbi_load_from_memory(head, entry_size, &width, &height,
                                          &channels, 0);
-        out = new ImageAsset(std::span(data, width * height* channels), width, height,
-                             channels);
+        out = new ImageAsset(std::span(data, width * height * channels), width,
+                             height, channels);
         stbi_image_free(data);
       }
       }
+
+      EXPECT(assets.find(hash) == assets.end(),
+             "Hash {} for asset {} is non-unique", hash.value(), path.c_str());
 
       assets[hash] = out;
       path.clear();
