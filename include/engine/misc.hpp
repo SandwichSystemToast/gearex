@@ -60,5 +60,6 @@ using f32 = float;
 using z = size_t;
 
 using bytes = std::span<u8>;
+using hash = entt::hashed_string::hash_type;
 
 }; // namespace engine

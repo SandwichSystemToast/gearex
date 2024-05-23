@@ -42,16 +42,17 @@ using namespace engine::assets;
 
 int main(int argc, char *argv[]) {
   auto asset_manager = AssetManager();
+  asset_manager.register_default_binary_resolvers();
+
   asset_manager.load_from_file("./assets.tar.gz");
 
   auto engine = Engine();
   auto renderer = Renderer();
   renderer.setup_opengl_debug();
 
-  auto cat_texture = asset_manager.get_image("assets/cat"_hs);
-  auto cat_texture_size = cat_texture->dimensions();
-  gl texture = renderer.make_texture(cat_texture->raw().data(),
-                                     cat_texture_size.x, cat_texture_size.y);
+  auto cat_texture = asset_manager.get_asset<ImageAsset>("assets/cat"_hs);
+  gl texture = renderer.make_texture(
+      cat_texture->raw, cat_texture->dimensions.x, cat_texture->dimensions.y);
 
   gl shader = renderer.make_program(vertex_shader_source,
                                     fragment_shader_source, "Demo Shader");
