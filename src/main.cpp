@@ -1,5 +1,3 @@
-#include <span>
-
 #include <spdlog/spdlog.h>
 
 #include <stb_image.h>
@@ -41,19 +39,17 @@ using namespace engine::renderer;
 using namespace engine::assets;
 
 int main(int argc, char *argv[]) {
+  auto asset_manager = AssetManager();
+  asset_manager.load_from_file("./assets.tar.gz");
+
   auto engine = Engine();
   auto renderer = Renderer();
   renderer.setup_opengl_debug();
 
-  auto assets = Assets("./assets.tar.gz");
-  auto texture_span = assets.get_binary("assets/cat"_hs).value();
-
-  i32 width, height, channels;
-  u8 *cat_data =
-      stbi_load_from_memory(texture_span.data(), texture_span.size_bytes(),
-                            &width, &height, &channels, 0);
-  gl texture = renderer.make_texture(cat_data, width, height);
-  stbi_image_free(cat_data);
+  auto cat_texture = asset_manager.get_image("assets/cat"_hs);
+  auto cat_texture_size = cat_texture->dimensions();
+  gl texture = renderer.make_texture(cat_texture->raw().data(),
+                                     cat_texture_size.x, cat_texture_size.y);
 
   gl shader = renderer.make_program(vertex_shader_source,
                                     fragment_shader_source, "Demo Shader");
@@ -63,7 +59,7 @@ int main(int argc, char *argv[]) {
                     {-0.5f, -0.5f, 0.0f},
                     {-0.5f, 0.5f, 0.0f}};
   v3 colors[4] = {{1., 0., 0.}, {0., 1., 0.}, {0., 0., 1.}, {1., 1., 1.}};
-  v2 texture_coordinates[4] = {{0., 0.}, {1., 0.}, {1., 1.}, {0., 1.}};
+  v2 texture_coordinates[4] = {{0., 0.}, {0., 1.}, {1., 1.}, {1., 0.}};
 
   u32 indices[6] = {0, 1, 3, 1, 2, 3};
 

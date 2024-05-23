@@ -14,6 +14,8 @@
 
 #include <entt/entt.hpp>
 
+#include <span>
+
 #define PANIC(msg, ...)                                                        \
   {                                                                            \
     spdlog::critical(__FILE__ ":{} " msg, __LINE__, ##__VA_ARGS__);            \
@@ -38,6 +40,7 @@ using v4 = glm::vec4;
 using vi2 = glm::ivec2;
 using vi3 = glm::ivec3;
 using vi4 = glm::ivec4;
+using vu2 = glm::uvec2;
 using m4x4 = glm::mat4x4;
 using m3x3 = glm::mat3x3;
 using m2x2 = glm::mat2x2;
@@ -54,5 +57,7 @@ using u64 = unsigned long;
 using f32 = float;
 
 using z = size_t;
+
+using bytes = std::span<u8>;
 
 }; // namespace engine
