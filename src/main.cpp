@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
   gl shader = renderer.make_program(vertex_shader_source,
                                     fragment_shader_source, "Demo Shader");
 
-  v3 vertices[4] = {{0.5f, 0.5f, 0.0f},
+  v3 vertex_positions[4] = {{0.5f, 0.5f, 0.0f},
                     {0.5f, -0.5f, 0.0f},
                     {-0.5f, -0.5f, 0.0f},
                     {-0.5f, 0.5f, 0.0f}};
@@ -67,7 +67,7 @@ int main(int argc, char *argv[]) {
 
   // TODO: optimize this
   for (z i = 0; i < 4; i++)
-    verts.add_vertex(vertices[i], colors[i], texture_coordinates[i]);
+    verts.add_vertex(vertex_positions[i], colors[i], texture_coordinates[i]);
 
   Mesh mesh = renderer.make_mesh(std::move(verts), std::span(indices, 6),
                                  Topology::TRIANGLES);
