@@ -5,13 +5,12 @@
 #include <GL/glext.h>
 
 #include <set>
-#include <span>
 
 #include <spdlog/spdlog.h>
 
 #include "../misc.hpp"
 #include "command.hpp"
-#include "vertex.hpp"
+#include "geometry.hpp"
 
 namespace engine::renderer {
 
@@ -40,7 +39,7 @@ struct Renderer {
         glUseProgram(command.draw_mesh.shader_program);
         glBindVertexArray(mesh.vertex_array);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.index_buffer);
-        glDrawElements(mesh.gl_draw_mode(), mesh.index_count, GL_UNSIGNED_INT,
+        glDrawElements(mesh.draw_mode, mesh.index_count, GL_UNSIGNED_INT,
                        0);
         glBindVertexArray(0);
         break;
@@ -100,9 +99,10 @@ struct Renderer {
     return texture;
   }
 
-  template <typename... Ts>
-  Mesh make_mesh(VertexBuilder<Ts...> &&vertex_builder, std::span<u32> indices,
-                 Topology topology) {
+  template <typename... Vs> Mesh make_mesh(const VertexGeometry<Vs...> &geometry) {
+    auto &indices = geometry.indices();
+    auto &vertices = geometry.vertices();
+    auto primitive = geometry.primitive();
     gl vertex_buffer, vertex_array, index_buffer;
 
     // Vertex Array
@@ -112,21 +112,21 @@ struct Renderer {
     // Index Buffer
     glGenBuffers(1, &index_buffer);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size_bytes(), indices.data(),
-                 GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(u32),
+                 indices.data(), GL_STATIC_DRAW);
 
     // Vertex Buffer
     glGenBuffers(1, &vertex_buffer);
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
-    glBufferData(GL_ARRAY_BUFFER, vertex_builder.size_bytes(),
-                 vertex_builder.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size(), vertices.data(),
+                 GL_STATIC_DRAW);
 
     z i = 0;
     z offset = 0;
-    z stride = VertexBuilder<Ts...>::stride;
+    z stride = VertexGeometry<Vs...>::stride;
     (
         [&] {
-          using va = vertex_attribute<Ts>;
+          using va = vertex_attribute<Vs>;
           glVertexAttribPointer(i, va::components, va::type, GL_FALSE, stride,
                                 (void *)(0 + offset));
           glEnableVertexAttribArray(i);
@@ -135,12 +135,27 @@ struct Renderer {
         }(),
         ...);
 
+    glenum draw_mode = [primitive]() {
+      switch (primitive) {
+      case GeometryPrimitive::TRIANGLES:
+        return GL_TRIANGLES;
+      case GeometryPrimitive::TRIANGLE_STRIP:
+        return GL_TRIANGLE_STRIP;
+      case GeometryPrimitive::QUADS:
+        return GL_QUADS;
+      case GeometryPrimitive::LINES:
+        return GL_LINES;
+      default:
+        PANIC("Undefined geometric primitive {}", (u8)primitive);
+      }
+    }();
+
     return Mesh{
         .index_count = (u32)indices.size(),
         .vertex_array = vertex_array,
         .index_buffer = index_buffer,
         .vertex_buffer = vertex_buffer,
-        .topology = topology,
+        .draw_mode = draw_mode,
     };
   }
 

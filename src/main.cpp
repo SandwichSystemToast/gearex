@@ -8,6 +8,8 @@
 
 #include "engine/assets/assets.hpp"
 #include "engine/engine.hpp"
+#include "engine/renderer/geometry.hpp"
+#include "engine/renderer/mesh.hpp"
 #include "engine/renderer/renderer.hpp"
 
 const char *vertex_shader_source = "#version 330 core\n"
@@ -55,22 +57,24 @@ int main(int argc, char *argv[]) {
                                     fragment_shader_source, "Demo Shader");
 
   v3 vertex_positions[4] = {{0.5f, 0.5f, 0.0f},
-                    {0.5f, -0.5f, 0.0f},
-                    {-0.5f, -0.5f, 0.0f},
-                    {-0.5f, 0.5f, 0.0f}};
+                            {0.5f, -0.5f, 0.0f},
+                            {-0.5f, -0.5f, 0.0f},
+                            {-0.5f, 0.5f, 0.0f}};
   v3 colors[4] = {{1., 0., 0.}, {0., 1., 0.}, {0., 0., 1.}, {1., 1., 1.}};
   v2 texture_coordinates[4] = {{0., 0.}, {0., 1.}, {1., 1.}, {1., 0.}};
 
   u32 indices[6] = {0, 1, 3, 1, 2, 3};
 
-  auto verts = VertexBuilder<v3, v3, v2>();
+  auto geometry_builder = GeometryBuilder<v3, v3, v2>();
 
   // TODO: optimize this
   for (z i = 0; i < 4; i++)
-    verts.add_vertex(vertex_positions[i], colors[i], texture_coordinates[i]);
+    geometry_builder.add_vertex(vertex_positions[i], colors[i],
+                                texture_coordinates[i]);
 
-  Mesh mesh = renderer.make_mesh(std::move(verts), std::span(indices, 6),
-                                 Topology::TRIANGLES);
+  auto geometry =
+      geometry_builder.stitch(GeometryPrimitive::TRIANGLES, indices);
+  Mesh mesh = renderer.make_mesh(geometry);
 
   while (!engine.done) {
     engine.process_events();
