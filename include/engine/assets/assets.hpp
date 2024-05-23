@@ -9,13 +9,15 @@
 #include <optional>
 #include <span>
 
-#include "misc.hpp"
+#include "engine/misc.hpp"
 
 #define EXPECT_ARCHIVE_OK()                                                    \
   {                                                                            \
     EXPECT(errc == ARCHIVE_OK || errc == ARCHIVE_WARN, "Err {} {}",            \
            archive_errno(archive), archive_error_string(archive));             \
   }
+
+namespace engine::assets {
 
 struct Assets {
   Assets(std::filesystem::path path) {
@@ -75,3 +77,5 @@ private:
   std::vector<u8> blob;
   struct archive *archive;
 };
+
+}

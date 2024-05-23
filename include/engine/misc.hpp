@@ -14,20 +14,22 @@
 
 #include <entt/entt.hpp>
 
-using namespace entt::literals;
-
 #define PANIC(msg, ...)                                                        \
   {                                                                            \
-    spdlog::critical(__FILE__ ":{} " msg, __LINE__, ##__VA_ARGS__);             \
+    spdlog::critical(__FILE__ ":{} " msg, __LINE__, ##__VA_ARGS__);            \
     exit(2);                                                                   \
   }
 
 #define EXPECT(expr, msg, ...)                                                 \
   {                                                                            \
     if (!(expr)) {                                                             \
-      PANIC(msg, ##__VA_ARGS__)                                                  \
+      PANIC(msg, ##__VA_ARGS__)                                                \
     }                                                                          \
   }
+
+namespace engine {
+
+using namespace entt::literals;
 
 using gl = GLuint;
 using v2 = glm::vec2;
@@ -52,3 +54,5 @@ using u64 = unsigned long;
 using f32 = float;
 
 using z = size_t;
+
+}; // namespace engine

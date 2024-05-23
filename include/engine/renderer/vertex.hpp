@@ -5,7 +5,9 @@
 
 #include <type_traits>
 
-#include "misc.hpp"
+#include "engine/misc.hpp"
+
+namespace engine::renderer {
 
 template <typename T>
   requires std::is_standard_layout_v<T>
@@ -53,3 +55,5 @@ template <typename... Ts> struct VertexBuilder {
 private:
   std::vector<u8> raw;
 };
+
+} // namespace engine::renderer

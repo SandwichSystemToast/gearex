@@ -2,7 +2,9 @@
 
 #include <vector>
 
-#include "renderer/mesh.hpp"
+#include "engine/renderer/mesh.hpp"
+
+namespace engine::renderer {
 
 enum struct CommandKind { DRAW_MESH };
 
@@ -33,3 +35,5 @@ struct CommandQueue {
 
   std::vector<Command> queue;
 };
+
+}

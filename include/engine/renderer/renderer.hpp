@@ -13,6 +13,8 @@
 #include "command.hpp"
 #include "vertex.hpp"
 
+namespace engine::renderer {
+
 static inline void GLAPIENTRY glMessageCallback(GLenum source, GLenum type,
                                                 GLuint id, GLenum severity,
                                                 GLsizei length,
@@ -167,3 +169,5 @@ protected:
     return true;
   }
 };
+
+} // namespace engine::renderer

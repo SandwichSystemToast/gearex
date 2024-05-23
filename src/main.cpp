@@ -1,4 +1,3 @@
-#include "renderer/command.hpp"
 #include <span>
 
 #include <spdlog/spdlog.h>
@@ -9,12 +8,9 @@
 #include <GL/gl.h>
 #include <GL/glext.h>
 
-#include "engine.hpp"
-#include "misc.hpp"
-
-#include "assets/assets.hpp"
-#include "renderer/renderer.hpp"
-#include "renderer/vertex.hpp"
+#include "engine/assets/assets.hpp"
+#include "engine/engine.hpp"
+#include "engine/renderer/renderer.hpp"
 
 const char *vertex_shader_source = "#version 330 core\n"
                                    "layout (location = 0) in vec3 aPos;\n"
@@ -40,8 +36,11 @@ const char *fragment_shader_source =
     "  FragColor = texture(ourTexture, TexCoord) * vec4(ourColor, 1.0);\n"
     "}\n\0";
 
-int main(int argc, char *argv[]) {
+using namespace engine;
+using namespace engine::renderer;
+using namespace engine::assets;
 
+int main(int argc, char *argv[]) {
   auto engine = Engine();
   auto renderer = Renderer();
   renderer.setup_opengl_debug();

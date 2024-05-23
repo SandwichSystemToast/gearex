@@ -5,7 +5,9 @@
 
 #include <type_traits>
 
-#include "misc.hpp"
+#include "engine/misc.hpp"
+
+namespace engine::renderer {
 
 enum struct Topology : u8 { TRIANGLES, TRIANGLE_STRIP, QUADS, LINES };
 
@@ -31,3 +33,5 @@ struct Mesh {
 };
 
 static_assert(std::is_trivial_v<Mesh>);
+
+} // namespace engine::renderer
