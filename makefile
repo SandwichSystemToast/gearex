@@ -1,6 +1,9 @@
 run: compile pack-assets
 	./build/gearex
 
+valgrind:
+	valgrind --leak-check=yes ./build/gearex
+
 compile:
 	meson setup build
 	CXXFLAGS="-g" meson compile -C build
