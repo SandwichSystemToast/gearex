@@ -52,8 +52,9 @@ int main(int argc, char *argv[]) {
   renderer.setup_opengl_debug();
 
   auto cat_texture = asset_manager.get_asset<ImageAsset>("assets/cat"_hs);
-  gl texture = renderer.make_texture(
-      cat_texture->raw.data(), cat_texture->dimensions.x, cat_texture->dimensions.y);
+  gl texture =
+      renderer.make_texture(cat_texture->raw.data(), cat_texture->dimensions.x,
+                            cat_texture->dimensions.y);
 
   auto vertex_shader =
       asset_manager.get_asset<ShaderSourceAsset>("assets/shaders/vertex"_hs);
@@ -82,7 +83,8 @@ int main(int argc, char *argv[]) {
 
   auto geometry =
       geometry_builder.stitch(GeometryPrimitive::TRIANGLES, indices);
-  Mesh mesh = renderer.make_mesh(geometry);
+  auto mesh = asset_manager.add_asset(
+      "mesh"_hs, new Mesh(renderer.make_mesh(geometry)));
 
   while (!engine.done) {
     engine.process_events();

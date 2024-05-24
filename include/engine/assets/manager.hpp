@@ -30,6 +30,10 @@ using BinaryAssetResolver = std::function<void(
 
 template <typename A> struct AssetHandle : std::shared_ptr<A> {
   using std::shared_ptr<A>::shared_ptr;
+
+  operator A*() {
+    return this->get();
+  }
 };
 
 struct AssetManager {
@@ -91,14 +95,15 @@ struct AssetManager {
     EXPECT_ARCHIVE_OK();
   }
 
-  template <typename A> void add_asset(AssetIndex index, A *asset) {
+  template <typename A> AssetHandle<A> add_asset(AssetIndex index, A *asset) {
     auto type_index = entt::type_id<A>().index();
     auto it = asset_map.find(type_index);
     if (it == asset_map.end())
       asset_map[type_index] = new erased_map<A>();
 
-    ((erased_map<A> *)asset_map[type_index])
-        ->insert_or_assign(index, AssetHandle<A>(asset));
+    auto handle = AssetHandle<A>(asset);
+    ((erased_map<A> *)asset_map[type_index])->insert_or_assign(index, handle);
+    return handle;
   }
 
   template <typename A> AssetHandle<A> get_asset(AssetIndex index) {

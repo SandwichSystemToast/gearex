@@ -23,10 +23,10 @@ static_assert(std::is_trivial_v<Command>);
 struct CommandQueue {
   CommandQueue() {}
 
-  CommandQueue &draw_mesh(Mesh mesh, gl shader_program) {
+  CommandQueue &draw_mesh(Mesh* mesh, gl shader_program) {
     auto command = Command{
         .kind = CommandKind::DRAW_MESH,
-        .draw_mesh = {.mesh = mesh, .shader_program = shader_program},
+        .draw_mesh = {.mesh = *mesh, .shader_program = shader_program},
     };
 
     queue.push_back(command);
