@@ -30,6 +30,8 @@
     }                                                                          \
   }
 
+#define name_of(T) entt::type_id<T>().name()
+
 namespace engine {
 
 using namespace entt::literals;

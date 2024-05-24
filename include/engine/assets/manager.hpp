@@ -31,9 +31,7 @@ using BinaryAssetResolver = std::function<void(
 template <typename A> struct AssetHandle : std::shared_ptr<A> {
   using std::shared_ptr<A>::shared_ptr;
 
-  operator A*() {
-    return this->get();
-  }
+  operator A *() { return this->get(); }
 };
 
 struct AssetManager {
@@ -97,25 +95,38 @@ struct AssetManager {
 
   template <typename A> AssetHandle<A> add_asset(AssetIndex index, A *asset) {
     auto type_index = entt::type_id<A>().index();
-    auto it = asset_map.find(type_index);
-    if (it == asset_map.end())
-      asset_map[type_index] = new erased_map<A>();
+
+    if (!asset_map.contains(type_index))
+      asset_map[type_index] = new erased_asset_map<A>();
+
+    EXPECT(asset_map.contains(type_index),
+           "Creating a resource map for type {} failed", name_of(A));
+    EXPECT(asset_map[type_index] != nullptr, "Missing asset map for type {}",
+           name_of(A));
 
     auto handle = AssetHandle<A>(asset);
-    ((erased_map<A> *)asset_map[type_index])->insert_or_assign(index, handle);
+    ((erased_asset_map<A> *)asset_map[type_index])
+        ->insert_or_assign(index, handle);
     return handle;
   }
 
   template <typename A> AssetHandle<A> get_asset(AssetIndex index) {
     auto type_index = entt::type_id<A>().index();
-    return ((erased_map<A> *)asset_map[type_index])->at(index);
+    EXPECT(asset_map[type_index] != nullptr, "Missing asset map for type {}",
+           name_of(A));
+
+    auto& map = *(erased_asset_map<A>*)asset_map[type_index];
+    EXPECT(map.find(index) != map.end(), "Asset {} does not exist", index);
+
+    return map.at(index);
   }
 
   AssetManager(AssetManager &&) = delete;
   AssetManager(const AssetManager &) = delete;
 
 protected:
-  template <typename A> using erased_map = std::map<AssetIndex, AssetHandle<A>>;
+  template <typename A>
+  using erased_asset_map = std::map<AssetIndex, AssetHandle<A>>;
 
   std::map<hash, BinaryAssetResolver> resolvers;
 
