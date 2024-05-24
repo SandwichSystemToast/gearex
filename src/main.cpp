@@ -54,8 +54,14 @@ int main(int argc, char *argv[]) {
   gl texture = renderer.make_texture(
       cat_texture->raw, cat_texture->dimensions.x, cat_texture->dimensions.y);
 
-  gl shader = renderer.make_program(vertex_shader_source,
-                                    fragment_shader_source, "Demo Shader");
+  auto vertex_shader =
+      asset_manager.get_asset<ShaderSourceAsset>("assets/shaders/vertex"_hs);
+  auto fragment_shader =
+      asset_manager.get_asset<ShaderSourceAsset>("assets/shaders/fragment"_hs);
+
+  gl shader =
+      renderer.make_program(vertex_shader->source.c_str(),
+                            fragment_shader->source.c_str(), "Demo Shader");
 
   v3 vertex_positions[4] = {{0.5f, 0.5f, 0.0f},
                             {0.5f, -0.5f, 0.0f},

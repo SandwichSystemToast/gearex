@@ -22,6 +22,11 @@
 
 namespace engine::assets {
 
+struct ShaderSourceAsset {
+  std::string name;
+  std::string source;
+};
+
 struct ImageAsset {
   vu2 dimensions;
   u32 channels;
@@ -39,6 +44,9 @@ using BinaryAssetResolver = std::function<void(
 inline void image_asset_resolver(AssetManager &, std::string_view,
                                  std::span<u8>);
 
+inline void shader_source_asset_resolver(AssetManager &, std::string_view,
+                                         std::span<u8>);
+
 // TODO: extend this to all common exceptions
 static_assert(".jpg"_hs != ".png"_hs);
 
@@ -52,6 +60,7 @@ struct AssetManager {
   void register_default_binary_resolvers() {
     register_binary_resolver(".png"_hs, image_asset_resolver);
     register_binary_resolver(".jpg"_hs, image_asset_resolver);
+    register_binary_resolver(".glsl"_hs, shader_source_asset_resolver);
   }
 
   void register_binary_resolver(hash extension_hash,
@@ -121,15 +130,14 @@ struct AssetManager {
 
   template <typename A> AssetHandle<A> get_asset(AssetIndex index) {
     auto type_index = entt::type_id<A>().index();
-    return ((erased_map<A>*)asset_map[type_index])->at(index);
+    return ((erased_map<A> *)asset_map[type_index])->at(index);
   }
 
   AssetManager(AssetManager &&) = delete;
   AssetManager(const AssetManager &) = delete;
 
 protected:
-  template <typename A>
-  using erased_map = std::map<AssetIndex, AssetHandle<A>>;
+  template <typename A> using erased_map = std::map<AssetIndex, AssetHandle<A>>;
 
   std::map<hash, BinaryAssetResolver> resolvers;
 
@@ -150,6 +158,19 @@ inline void image_asset_resolver(AssetManager &assets,
                        .dimensions = {width, height},
                        .channels = (u32)channels,
                        .raw = raw_image,
+                   });
+}
+
+inline void shader_source_asset_resolver(AssetManager &assets,
+                                         std::string_view asset_name,
+                                         std::span<u8> raw) {
+  std::string source(raw.begin(), raw.end());
+  std::string name(asset_name.begin(), asset_name.end());
+
+  assets.add_asset(entt::hashed_string(asset_name.data()).value(),
+                   new ShaderSourceAsset{
+                       .name = name,
+                       .source = source,
                    });
 }
 
