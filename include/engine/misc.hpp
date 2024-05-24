@@ -7,6 +7,7 @@
 
 #include <glm/ext/vector_int2.hpp>
 #include <glm/glm.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>
 
 #include <spdlog/fmt/ostr.h>
