@@ -22,6 +22,8 @@
 
 namespace engine::assets {
 
+struct AssetManager;
+
 struct ShaderSourceAsset {
   std::string name;
   std::string source;
@@ -35,20 +37,12 @@ struct ImageAsset {
   ~ImageAsset() { stbi_image_free(raw); }
 };
 
+template <typename A> struct resolve_asset {};
+
 using AssetIndex = hash;
 
-struct AssetManager;
 using BinaryAssetResolver = std::function<void(
     AssetManager &manager, std::string_view asset_path, std::span<u8> raw)>;
-
-inline void image_asset_resolver(AssetManager &, std::string_view,
-                                 std::span<u8>);
-
-inline void shader_source_asset_resolver(AssetManager &, std::string_view,
-                                         std::span<u8>);
-
-// TODO: extend this to all common exceptions
-static_assert(".jpg"_hs != ".png"_hs);
 
 template <typename A> struct AssetHandle : std::shared_ptr<A> {
   using std::shared_ptr<A>::shared_ptr;
@@ -58,14 +52,14 @@ struct AssetManager {
   AssetManager() {}
 
   void register_default_binary_resolvers() {
-    register_binary_resolver(".png"_hs, image_asset_resolver);
-    register_binary_resolver(".jpg"_hs, image_asset_resolver);
-    register_binary_resolver(".glsl"_hs, shader_source_asset_resolver);
+    register_asset_type<ShaderSourceAsset>();
+    register_asset_type<ImageAsset>();
   }
 
-  void register_binary_resolver(hash extension_hash,
-                                BinaryAssetResolver resolver) {
-    resolvers[extension_hash] = resolver;
+  template <typename A> void register_asset_type() {
+    using resolver = resolve_asset<A>;
+    for (auto ext : resolver::extensions)
+      resolvers[entt::hashed_string(ext)] = resolver::resolve;
   }
 
   void load_from_file(std::filesystem::path &&path) {
@@ -147,35 +141,35 @@ protected:
   std::map<entt::id_type, void *> asset_map;
 };
 
-inline void image_asset_resolver(AssetManager &assets,
-                                 std::string_view asset_name,
-                                 std::span<u8> raw) {
-  i32 width, height, channels;
-  u8 *raw_image = stbi_load_from_memory(raw.data(), raw.size_bytes(), &width,
-                                        &height, &channels, 0);
-  assets.add_asset(entt::hashed_string(asset_name.data()).value(),
-                   new ImageAsset{
-                       .dimensions = {width, height},
-                       .channels = (u32)channels,
-                       .raw = raw_image,
-                   });
-}
+template <> struct resolve_asset<ImageAsset> {
+  static constexpr std::array<const char *, 2> extensions = {".png", ".jpg"};
+  static void resolve(AssetManager &assets, std::string_view asset_name,
+                      std::span<u8> raw) {
+    i32 width, height, channels;
+    u8 *raw_image = stbi_load_from_memory(raw.data(), raw.size_bytes(), &width,
+                                          &height, &channels, 0);
+    assets.add_asset(entt::hashed_string(asset_name.data()).value(),
+                     new ImageAsset{
+                         .dimensions = {width, height},
+                         .channels = (u32)channels,
+                         .raw = raw_image,
+                     });
+  }
+};
 
-inline void shader_source_asset_resolver(AssetManager &assets,
-                                         std::string_view asset_name,
-                                         std::span<u8> raw) {
-  std::string source(raw.begin(), raw.end());
-  std::string name(asset_name.begin(), asset_name.end());
+template <> struct resolve_asset<ShaderSourceAsset> {
+  static constexpr std::array<const char *, 1> extensions = {".glsl"};
+  static void resolve(AssetManager &assets, std::string_view asset_name,
+                      std::span<u8> raw) {
+    std::string source(raw.begin(), raw.end());
+    std::string name(asset_name.begin(), asset_name.end());
 
-  assets.add_asset(entt::hashed_string(asset_name.data()).value(),
-                   new ShaderSourceAsset{
-                       .name = name,
-                       .source = source,
-                   });
-}
-
-// Ensure the image resolver is compatible with the asset manager
-static_assert(std::is_constructible_v<BinaryAssetResolver,
-                                      decltype(image_asset_resolver)>);
+    assets.add_asset(entt::hashed_string(asset_name.data()).value(),
+                     new ShaderSourceAsset{
+                         .name = name,
+                         .source = source,
+                     });
+  }
+};
 
 } // namespace engine::assets
