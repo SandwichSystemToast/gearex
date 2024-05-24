@@ -42,7 +42,8 @@ using namespace engine::assets;
 
 int main(int argc, char *argv[]) {
   auto asset_manager = AssetManager();
-  asset_manager.register_default_binary_resolvers();
+  asset_manager.register_asset_type<ImageAsset>();
+  asset_manager.register_asset_type<ShaderSourceAsset>();
 
   asset_manager.load_from_file("./assets.tar.gz");
 
@@ -52,7 +53,7 @@ int main(int argc, char *argv[]) {
 
   auto cat_texture = asset_manager.get_asset<ImageAsset>("assets/cat"_hs);
   gl texture = renderer.make_texture(
-      cat_texture->raw, cat_texture->dimensions.x, cat_texture->dimensions.y);
+      cat_texture->raw.data(), cat_texture->dimensions.x, cat_texture->dimensions.y);
 
   auto vertex_shader =
       asset_manager.get_asset<ShaderSourceAsset>("assets/shaders/vertex"_hs);
