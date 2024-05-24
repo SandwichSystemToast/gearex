@@ -30,7 +30,6 @@ struct ImageAsset {
   }
 };
 
-
 template <> struct resolve_asset<ImageAsset> {
   static constexpr std::array<const char *, 2> extensions = {".png", ".jpg"};
   static void resolve(AssetManager &assets, std::string_view asset_name,
@@ -40,6 +39,7 @@ template <> struct resolve_asset<ImageAsset> {
                                           &height, &channels, 0);
     assets.add_asset(entt::hashed_string(asset_name.data()).value(),
                      new ImageAsset(raw_image, {width, height}, channels));
+    stbi_image_free(raw_image);
   }
 };
 
