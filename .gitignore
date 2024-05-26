@@ -1,6 +1,6 @@
 imgui.ini
-build_debug/
-build_release/
+build_dbg/
+build_rel/
 build/
 .vscode/
 assets.tar.gz
