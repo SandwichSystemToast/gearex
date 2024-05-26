@@ -1,10 +1,10 @@
 everyone signing this file agrees to
 
 1. respect the code conventions
-ktlvr
+ktlvr cylapz
 
 2. not use any of the source code for commercial purposes
-ktnlvr
+ktnlvr cylapz
 
 3. be nice to eachother
-ktnlvr
+ktnlvr cylapz

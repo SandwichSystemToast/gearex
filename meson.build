@@ -1,13 +1,34 @@
-project('gearex', 'cpp', default_options: 'default_library=static', default_options : ['c_std=c23', 'cpp_std=c++2a'])
+project(
+  'gearex',
+  'cpp',
+  default_options: [
+    'default_library=static',
+    'c_std=c23',
+    'cpp_std=c++2a'
+  ]
+)
 
-inc = [include_directories('include'), include_directories('ext/entt/src/')]
+inc = []
+dep = []
+src = []
 
-sdl2_dep = dependency('sdl2')
-box2d_dep = dependency('box2d')
-imgui_dep = dependency('imgui')
-opengl3_dep = dependency('gl')
-spdlog_dep = dependency('spdlog')
-glm_dep = dependency('glm')
-archive_dep = dependency('libarchive')
+inc += include_directories('include')
 
-executable('gearex', 'src/main.cpp', dependencies: [sdl2_dep, box2d_dep, imgui_dep, opengl3_dep, spdlog_dep, glm_dep, archive_dep], include_directories: inc)
+dep += [
+  dependency('sdl2'),
+  dependency('box2d'),
+  dependency('imgui'),
+  dependency('gl'),
+  dependency('spdlog'),
+  dependency('glm'),
+  dependency('libarchive')
+]
+
+subdir('src')
+
+executable(
+  'gearex',
+  src,
+  dependencies: dep,
+  include_directories: inc
+)
