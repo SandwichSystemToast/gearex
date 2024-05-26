@@ -1,5 +1,10 @@
-run: compile_dbg pack-assets
-	./build/gearex
+run_dbg: compile_dbg pack-assets
+	./build_dbg/gearex
+
+run_rel: compile_rel pack-assets
+	./build_rel/gearex
+
+run: compile_dbg
 
 valgrind:
 	valgrind --leak-check=yes ./build/gearex
