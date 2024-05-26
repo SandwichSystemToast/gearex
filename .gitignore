@@ -1,7 +1,7 @@
 imgui.ini
 build_dbg/
 build_rel/
-build/
+build
 .vscode/
 assets.tar.gz
 docs/
