@@ -5,7 +5,7 @@
 #include "engine/misc.hpp"
 #include "manager.hpp"
 
-#include <stb/stb_image.h>
+#include <stb_image.h>
 
 namespace engine::assets {
 
