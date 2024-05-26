@@ -12,18 +12,18 @@ inc = []
 dep = []
 src = []
 
-inc += include_directories('include')
+inc += include_directories('include', 'ext')
 
 dep += [
   dependency('sdl2'),
   dependency('box2d'),
-  dependency('imgui'),
   dependency('gl'),
   dependency('spdlog'),
   dependency('glm'),
   dependency('libarchive')
 ]
 
+subdir('ext')
 subdir('src')
 
 executable(

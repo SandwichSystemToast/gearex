@@ -8,7 +8,7 @@
 #include <SDL2/SDL_opengl.h>
 
 #include <imgui/backends/imgui_impl_opengl3.h>
-#include <imgui/backends/imgui_impl_sdl.h>
+#include <imgui/backends/imgui_impl_sdl2.h>
 #include <imgui/imgui.h>
 #include <optional>
 #include <spdlog/spdlog.h>
@@ -62,7 +62,7 @@ struct Window {
 
   void begin_frame() {
     ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplSDL2_NewFrame(window);
+    ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
 
     ImGuiIO &io = ImGui::GetIO();
