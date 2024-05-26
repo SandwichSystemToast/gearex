@@ -11,10 +11,10 @@ valgrind:
 
 setup:
 	CXX=clang++ meson setup build_dbg
-	meson configure build_dbg -Ddebug=true
+	meson configure build_dbg -Ddebug=true -Dprefix=/usr/bin/
 
 	CXX=clang++ meson setup build_rel
-	meson configure build_rel -Ddebug=false -Db_lto=true -Doptimization=3
+	meson configure build_rel -Ddebug=false -Db_lto=true -Doptimization=3 -Dprefix=/usr/bin/
 
 compile_dbg: setup
 	meson compile -C build_dbg
@@ -24,6 +24,5 @@ compile_rel: setup
 
 compile: compile_dbg
 
-pack-assets:
-	# don't include the root assets/ directory in the archive
-	tar -czvf assets.tar.gz assets
+install: compile_rel
+	meson install -C build_rel

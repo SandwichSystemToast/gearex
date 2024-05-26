@@ -26,6 +26,11 @@ meson compile -C build
 ./build/gearx
 ```
 ## install
-TODO
+### make
 ```
+make install
+```
+### meson
+```
+meson install -C build_rel
 ```
