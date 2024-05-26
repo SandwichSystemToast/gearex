@@ -1,4 +1,4 @@
-inc += include_directories('entt', 'imgui', 'stb')
+inc += include_directories('entt/src/', 'imgui', 'stb')
 
 src += files(
   'imgui/imgui.cpp',
